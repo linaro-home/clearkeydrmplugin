@@ -28,7 +28,7 @@ https://github.com/linaro-swg/optee_android_manifest
 
 ```bash
   $ cd external
-  $ git clone git@github.com:petegriffin/clearkeydrmplugin.git
+  $ git clone git@github.com:linaro-home/clearkeydrmplugin.git
   $ cd clearkeydrmplugin
   $ git clone git@github.com:linaro-home/optee-clearkey-cdmi.git
 ```
