@@ -23,6 +23,10 @@
 #include "CryptoPlugin.h"
 #include "SessionLibrary.h"
 
+extern "C" {
+#include "aes_crypto.h"
+}
+
 namespace clearkeydrm {
 
 using android::Vector;
@@ -36,11 +40,11 @@ ssize_t CryptoPlugin::decrypt(bool secure, const KeyId keyId, const Iv iv,
                               Mode mode, const Pattern &/* pattern */, const void* srcPtr,
                               const SubSample* subSamples, size_t numSubSamples,
                               void* dstPtr, AString* errorDetailMsg) {
-    if (secure) {
-        errorDetailMsg->setTo("Secure decryption is not supported with "
-                              "ClearKey.");
-        return android::ERROR_DRM_CANNOT_HANDLE;
-    }
+#ifdef SDP_PROTOTYPE
+  /* force secure mode */
+  ALOGI("%s: setting secure=1", __func__);
+  secure = 1;
+#endif
 
     if (mode == kMode_Unencrypted) {
         size_t offset = 0;
@@ -55,17 +59,23 @@ ssize_t CryptoPlugin::decrypt(bool secure, const KeyId keyId, const Iv iv,
             }
 
             if (subSample.mNumBytesOfClearData != 0) {
+	      if (!secure)
                 memcpy(reinterpret_cast<uint8_t*>(dstPtr) + offset,
                        reinterpret_cast<const uint8_t*>(srcPtr) + offset,
                        subSample.mNumBytesOfClearData);
-                offset += subSample.mNumBytesOfClearData;
+	      else
+		TEE_copy_secure_memory(reinterpret_cast<const uint8_t*>(srcPtr),
+				       reinterpret_cast<uint8_t*>(dstPtr),
+				       subSample.mNumBytesOfClearData, offset);
+
+	      offset += subSample.mNumBytesOfClearData;
             }
         }
         return static_cast<ssize_t>(offset);
     } else if (mode == kMode_AES_CTR) {
         size_t bytesDecrypted;
         status_t res = mSession->decrypt(keyId, iv, srcPtr, dstPtr, subSamples,
-                                         numSubSamples, &bytesDecrypted);
+                                         numSubSamples, &bytesDecrypted, secure);
         if (res == android::OK) {
             return static_cast<ssize_t>(bytesDecrypted);
         } else {

@@ -38,12 +38,25 @@ namespace clearkeydrm {
 
 static const size_t kBlockBitCount = kBlockSize * 8;
 
+AesCtrDecryptor::AesCtrDecryptor() {
+#ifdef USE_AES_TA
+  TEE_crypto_init();
+#endif
+}
+
+AesCtrDecryptor::~AesCtrDecryptor() {
+#ifdef USE_AES_TA
+  TEE_crypto_close();
+#endif
+}
+
 android::status_t AesCtrDecryptor::decrypt(const android::Vector<uint8_t>& key,
         const Iv iv, const uint8_t* source,
         uint8_t* destination,
         const SubSample* subSamples,
         size_t numSubSamples,
-        size_t* bytesDecryptedOut) {
+	size_t* bytesDecryptedOut,
+	bool secure) {
     uint32_t blockOffset = 0;
     uint8_t previousEncryptedCounter[kBlockSize];
     memset(previousEncryptedCounter, 0, kBlockSize);
@@ -61,8 +74,15 @@ android::status_t AesCtrDecryptor::decrypt(const android::Vector<uint8_t>& key,
         const SubSample& subSample = subSamples[i];
 
         if (subSample.mNumBytesOfClearData > 0) {
+#ifdef USE_AES_TA
+	  if (secure)
+	    TEE_copy_secure_memory(source, destination,
+				   subSample.mNumBytesOfClearData, offset);
+	  else
+#endif
             memcpy(destination + offset, source + offset,
                     subSample.mNumBytesOfClearData);
+
             offset += subSample.mNumBytesOfClearData;
         }
 
@@ -73,10 +93,10 @@ android::status_t AesCtrDecryptor::decrypt(const android::Vector<uint8_t>& key,
                     opensslIv, previousEncryptedCounter,
                     &blockOffset);
 #else
-            TEE_AES_ctr128_encrypt(source + offset, destination + offset,
+            TEE_AES_ctr128_encrypt(source, destination,
                     subSample.mNumBytesOfEncryptedData, (const char*)key.array(),
                     opensslIv, previousEncryptedCounter,
-                    &blockOffset);
+		    &blockOffset, offset, secure);
 #endif
             offset += subSample.mNumBytesOfEncryptedData;
         }

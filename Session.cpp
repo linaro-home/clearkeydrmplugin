@@ -64,7 +64,7 @@ status_t Session::provideKeyResponse(const Vector<uint8_t>& response) {
 status_t Session::decrypt(
         const KeyId keyId, const Iv iv, const void* source,
         void* destination, const SubSample* subSamples,
-        size_t numSubSamples, size_t* bytesDecryptedOut) {
+        size_t numSubSamples, size_t* bytesDecryptedOut, bool secure) {
     Mutex::Autolock lock(mMapLock);
 
     Vector<uint8_t> keyIdVector;
@@ -79,7 +79,7 @@ status_t Session::decrypt(
             key, iv,
             reinterpret_cast<const uint8_t*>(source),
             reinterpret_cast<uint8_t*>(destination), subSamples,
-            numSubSamples, bytesDecryptedOut);
+            numSubSamples, bytesDecryptedOut, secure);
 }
 
 } // namespace clearkeydrm

@@ -48,7 +48,7 @@ public:
     android::status_t decrypt(
             const KeyId keyId, const Iv iv, const void* source,
             void* destination, const SubSample* subSamples,
-            size_t numSubSamples, size_t* bytesDecryptedOut);
+            size_t numSubSamples, size_t* bytesDecryptedOut, bool secure);
 
 private:
     DISALLOW_EVIL_CONSTRUCTORS(Session);

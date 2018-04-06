@@ -44,7 +44,7 @@ SessionLibrary* SessionLibrary::get() {
     Mutex::Autolock lock(sSingletonLock);
 
     if (sSingleton == NULL) {
-        ALOGD("Instantiating Session Library Singleton.");
+        ALOGD("Instantiating Session Library Singleton ClearKeyOPTEE Plugin.");
         sSingleton = new SessionLibrary();
     }
 
@@ -63,10 +63,6 @@ sp<Session> SessionLibrary::createSession() {
 
     mSessions.add(sessionId, new Session(sessionId));
 
-#ifdef USE_AES_TA
-        TEE_crypto_init();
-        ALOGD("%s:Session created.", __func__);
-#endif
     return mSessions.valueFor(sessionId);
 }
 
@@ -82,12 +78,6 @@ sp<Session> SessionLibrary::findSession(
 void SessionLibrary::destroySession(const sp<Session>& session) {
     Mutex::Autolock lock(mSessionsLock);\
     mSessions.removeItem(session->sessionId());
-#ifdef USE_AES_TA
-    TEE_crypto_close();
-    ALOGD("%s:Session destroy.", __func__);
-#endif
-
-
 }
 
 } // namespace clearkeydrm

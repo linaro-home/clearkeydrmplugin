@@ -38,7 +38,7 @@ class AesCtrDecryptorTest : public ::testing::Test {
 
         AesCtrDecryptor decryptor;
         return decryptor.decrypt(keyVector, iv, source, destination, subSamples,
-                                 numSubSamples, bytesDecryptedOut);
+                                 numSubSamples, bytesDecryptedOut, 0);
     }
 
     template <size_t totalSize>

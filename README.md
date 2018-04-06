@@ -97,3 +97,11 @@ https://github.com/linaro-swg/optee_android_manifest
 
 ## Notes
 
+   make rule to rebuild OPTEE ClearKey mediadrm plugin
+```bash
+   make libdrmclearkeyopteeplugin
+```
+   make rule to rebuild OPTEE ClearKey TA
+```bash
+   make 442ed209-b8e2-405e-83845cc78c753428.ta
+```
