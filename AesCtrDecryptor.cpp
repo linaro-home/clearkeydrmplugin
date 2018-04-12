@@ -18,21 +18,21 @@
 #define LOG_TAG "ClearKeyCryptoPlugin"
 #include <utils/Log.h>
 
-//#include <openssl/aes.h>
+#include "AesCtrDecryptor.h"
 
 #ifndef USE_AES_TA
 #include <openssl/aes.h>
 #include <openssl/evp.h>
 #else
-extern "C" {
 #include "aes_crypto.h"
-}
 
 /* Map between OP TEE TA and OpenSSL */
+#ifndef AES_BLOCK_SIZE
 #define AES_BLOCK_SIZE CTR_AES_BLOCK_SIZE
 #endif
 
-#include "AesCtrDecryptor.h"
+#endif
+
 
 namespace clearkeydrm {
 
