@@ -17,6 +17,9 @@ LOCAL_PATH:= $(call my-dir)
 TA_PATH:= $(LOCAL_PATH)
 include $(CLEAR_VARS)
 
+# Extra flags for SDP usage
+CFG_SECURE_DATA_PATH ?= n
+
 LOCAL_SRC_FILES := \
     AesCtrDecryptor.cpp \
     ClearKeyUUID.cpp \
@@ -39,7 +42,7 @@ LOCAL_C_INCLUDES := \
 
 LOCAL_MODULE := libdrmclearkeyopteeplugin
 
-LOCAL_CFLAGS +=  -DUSE_AES_TA
+LOCAL_CFLAGS += -DUSE_AES_TA -DCFG_SECURE_DATA_PATH=$(CFG_SECURE_DATA_PATH)
 
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_MODULE_RELATIVE_PATH := mediadrm
