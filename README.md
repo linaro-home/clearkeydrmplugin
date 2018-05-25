@@ -1,5 +1,7 @@
 # ClearKey OPTEE AOSP drm plugin
 
+test
+
 This plugin is based off the default AOSP SW ClearKey plugin
 but uses OPTEE trusted application for the decryption. It has
 been tested using ClearKey CENC test vectors played back
