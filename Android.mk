@@ -22,6 +22,7 @@ CFG_SECURE_DATA_PATH ?= n
 
 LOCAL_SRC_FILES := \
     AesCtrDecryptor.cpp \
+    AesCtrDecryptorSecure.cpp \
     ClearKeyUUID.cpp \
     CreatePluginFactories.cpp \
     CryptoFactory.cpp \

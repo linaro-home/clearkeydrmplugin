@@ -24,6 +24,7 @@
 #include "Session.h"
 
 #include "AesCtrDecryptor.h"
+#include "AesCtrDecryptorSecure.h"
 #include "InitDataParser.h"
 #include "JsonWebKey.h"
 
@@ -80,6 +81,33 @@ status_t Session::decrypt(
             reinterpret_cast<const uint8_t*>(source),
             reinterpret_cast<uint8_t*>(destination), subSamples,
             numSubSamples, bytesDecryptedOut, secure);
+}
+
+status_t Session::secureDecrypt(
+            bool encrypted, const KeyId keyId, const Iv iv, const void* source,
+            void* destination, const SubSample* subSamples,
+            size_t numSubSamples, size_t* bytesDecryptedOut) {
+    Mutex::Autolock lock(mMapLock);
+    AesCtrDecryptorSecure decryptor;
+
+    if (encrypted == false) {
+        return decryptor.secureDecrypt(NULL, NULL,
+                        reinterpret_cast<const uint8_t*>(source),
+                        reinterpret_cast<uint8_t*>(destination),
+                        subSamples, numSubSamples, bytesDecryptedOut);
+    } else {
+        Vector<uint8_t> keyIdVector;
+        keyIdVector.appendArray(keyId, kBlockSize);
+        if (mKeyMap.indexOfKey(keyIdVector) < 0) {
+            return android::ERROR_DRM_NO_LICENSE;
+        }
+        const Vector<uint8_t>& key = mKeyMap.valueFor(keyIdVector);
+
+        return decryptor.secureDecrypt((const char *)key.array(), iv,
+                        reinterpret_cast<const uint8_t*>(source),
+                        reinterpret_cast<uint8_t*>(destination), subSamples,
+                        numSubSamples, bytesDecryptedOut);
+    }
 }
 
 } // namespace clearkeydrm
