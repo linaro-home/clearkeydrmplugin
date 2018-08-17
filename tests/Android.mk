@@ -41,3 +41,29 @@ LOCAL_SHARED_LIBRARIES := \
     libutils \
 
 include $(BUILD_NATIVE_TEST)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := ClearKeyOPTEEDrmUnitTestSecure
+LOCAL_MODULE_TAGS := tests
+
+LOCAL_SRC_FILES := \
+    ion/ion_allocator_helper.cpp \
+    AesCtrDecryptorSecureUnittest.cpp \
+    InitDataParserUnittest.cpp \
+    JsonWebKeyUnittest.cpp \
+
+LOCAL_C_INCLUDES := \
+    external/jsmn \
+    $(LOCAL_PATH)/../ \
+    $(TOP)/frameworks/av/include \
+    $(TOP)/frameworks/native/include \
+
+LOCAL_SHARED_LIBRARIES := \
+    libcrypto \
+    libdrmclearkeyopteeplugin \
+    liblog \
+    libstagefright_foundation \
+    libutils \
+    libcutils \
+
+include $(BUILD_NATIVE_TEST)
