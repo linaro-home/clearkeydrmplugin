@@ -39,7 +39,12 @@ public:
 
     virtual bool requiresSecureDecoderComponent(const char* mime) const {
         UNUSED(mime);
+#if CFG_SECURE_DATA_PATH==y
+        /* activate secure video path */
+        return true;
+#else
         return false;
+#endif
     }
 
     virtual ssize_t decrypt(

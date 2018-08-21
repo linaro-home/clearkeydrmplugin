@@ -41,9 +41,20 @@ ssize_t CryptoPlugin::decrypt(bool secure, const KeyId keyId, const Iv iv,
                               const SubSample* subSamples, size_t numSubSamples,
                               void* dstPtr, AString* errorDetailMsg) {
 #ifdef SDP_PROTOTYPE
-  /* force secure mode */
-  ALOGI("%s: setting secure=1", __func__);
-  secure = 1;
+    /* force secure mode */
+    ALOGI("%s: setting secure=1", __func__);
+    secure = 1;
+#elif CFG_SECURE_DATA_PATH==y
+    /* Handle secure video path decryption */
+    size_t bytesDecrypted = 0;
+    if (mSession->secureDecrypt(mode == kMode_Unencrypted? false : true,
+                                keyId, iv, srcPtr, dstPtr, subSamples,
+                                numSubSamples, &bytesDecrypted) == android::OK)
+        return bytesDecrypted;
+    else {
+        ALOGE("session::secureDecrypt error.");
+        return 0;
+    }
 #endif
 
     if (mode == kMode_Unencrypted) {

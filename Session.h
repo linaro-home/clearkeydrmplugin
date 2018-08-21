@@ -24,6 +24,8 @@
 #include <utils/String8.h>
 #include <utils/Vector.h>
 
+#include <aes_crypto.h>
+
 #include "ClearKeyTypes.h"
 #include "Utils.h"
 
@@ -31,9 +33,21 @@ namespace clearkeydrm {
 
 class Session : public android::RefBase {
 public:
+#ifndef USE_AES_TA
     explicit Session(const android::Vector<uint8_t>& sessionId)
             : mSessionId(sessionId) {}
     virtual ~Session() {}
+#else
+    explicit Session(const android::Vector<uint8_t>& sessionId)
+            : mSessionId(sessionId) {
+        TEE_crypto_init();
+        ALOGD("%s:Session created.", __func__);
+    }
+    virtual ~Session() {
+        TEE_crypto_close();
+        ALOGD("%s:Session destroy.", __func__);
+    }
+#endif
 
     const android::Vector<uint8_t>& sessionId() const { return mSessionId; }
 
@@ -49,6 +63,11 @@ public:
             const KeyId keyId, const Iv iv, const void* source,
             void* destination, const SubSample* subSamples,
             size_t numSubSamples, size_t* bytesDecryptedOut, bool secure);
+
+    android::status_t secureDecrypt(
+            bool encrypted, const KeyId keyId, const Iv iv, const void* source,
+            void* destination, const SubSample* subSamples,
+            size_t numSubSamples, size_t* bytesDecryptedOut);
 
 private:
     DISALLOW_EVIL_CONSTRUCTORS(Session);
